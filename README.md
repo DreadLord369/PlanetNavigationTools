@@ -23,4 +23,4 @@ Link to original mod: https://community.playstarbound.com/resources/planet-navig
 
 ## Guidelines
 
-All original code is provided under MIT license as found in LICENSE.md.
+All original code is provided under MIT license as found in [LICENSE.md](LICENSE.md).
