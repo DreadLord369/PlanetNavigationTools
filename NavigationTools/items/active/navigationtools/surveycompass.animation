@@ -1,0 +1,19 @@
+{
+  "animatedParts" : {
+    "parts" : {
+      "compass" : {
+        "properties" : {
+          "zLevel" : 0,
+          "centered" : true,
+          "image" : "<partImage>",
+          "offset" : [0, 0],
+          "transformationGroups" : ["compass"]
+        }
+      }
+    }
+  },
+
+  "transformationGroups" : {
+    "compass" : {}
+  }
+}

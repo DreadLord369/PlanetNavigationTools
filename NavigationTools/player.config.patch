@@ -1,0 +1,8 @@
+[
+  { "op": "add", "path": "/deploymentConfig/scripts/-", "value": "/scripts/navigationtools/navigationtools_player_init.lua" },
+  { "op": "add", "path": "/statusControllerSettings/primaryScriptSources/-", "value": "/scripts/navigationtools/navigationtools_player_primary.lua" },
+
+  {"op":"add","path":"/defaultBlueprints/tier1/-","value":{"item":"surveycompass"}},
+  {"op":"add","path":"/defaultBlueprints/tier1/-","value":{"item":"surfacemap"}},
+  {"op":"add","path":"/defaultBlueprints/tier1/-","value":{"item":"minimap"}}
+]

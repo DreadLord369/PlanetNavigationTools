@@ -1,0 +1,12 @@
+[
+  {
+    "op": "add",
+    "path": "/items/navigationtools:minimap",
+    "value": {
+      "label": "Minimap",
+      "icon": "/items/active/navigationtools/minimapicon.png",
+      "weight" : 999,
+      "action": [ "exec", "/scripts/navigationtools/openMinimap.lua" ]
+    }
+  }
+]

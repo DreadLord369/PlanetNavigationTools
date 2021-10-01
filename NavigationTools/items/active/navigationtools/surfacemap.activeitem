@@ -1,0 +1,22 @@
+{
+  "itemName" : "surfacemap",
+  "price" : 100,
+  "level" : 1,
+  "maxStack" : 1,
+  "rarity" : "Rare",
+  "category" : "tool",
+  "description" : "Charts the surface of the planet as you walk.",
+  "shortdescription" : "Surface Map",
+  "twoHanded" : false,
+  "itemTags" : [],
+
+  "inventoryIcon" : "surfacemapicon.png",
+
+  "animation" : "/items/active/navigationtools/surveycompass.animation",
+  "animationParts" : {
+    "compass" : "surfacemap.png"
+  },
+
+  "scripts" : ["/items/active/navigationtools/surfacemap.lua"],
+  "scriptDelta" : 2
+}

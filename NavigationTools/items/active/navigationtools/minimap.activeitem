@@ -1,0 +1,22 @@
+{
+  "itemName" : "minimap",
+  "price" : 2000,
+  "level" : 1,
+  "maxStack" : 1,
+  "rarity" : "Legendary",
+  "category" : "tool",
+  "description" : "Minimap. Used to view your map tracking on the current planet.",
+  "shortdescription" : "Minimap",
+  "twoHanded" : false,
+  "itemTags" : [],
+
+  "inventoryIcon" : "minimapicon.png",
+
+  "animation" : "/items/active/navigationtools/surveycompass.animation",
+  "animationParts" : {
+    "compass" : "minimap.png"
+  },
+
+  "scripts" : ["/items/active/navigationtools/minimap.lua"],
+  "scriptDelta" : 2
+}

@@ -1,0 +1,22 @@
+{
+  "itemName" : "surveycompass",
+  "price" : 10,
+  "level" : 1,
+  "maxStack" : 1,
+  "rarity" : "Uncommon",
+  "category" : "tool",
+  "description" : "A tool for marking locations on a planet so you can find them later.",
+  "shortdescription" : "Survey Compass",
+  "twoHanded" : false,
+  "itemTags" : [],
+
+  "inventoryIcon" : "surveycompassicon.png",
+
+  "animation" : "/items/active/navigationtools/surveycompass.animation",
+  "animationParts" : {
+    "compass" : "surveycompass.png"
+  },
+
+  "scripts" : ["/items/active/navigationtools/surveycompass.lua"],
+  "scriptDelta" : 2
+}

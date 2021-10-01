@@ -1,0 +1,1 @@
+world.sendEntityMessage(player.id(), "OpenMiniMap")
