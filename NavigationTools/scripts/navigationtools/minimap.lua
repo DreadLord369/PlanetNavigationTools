@@ -5,68 +5,129 @@ require "/interface/navigationtools/tilestore.lua"
 local _uninit = uninit
 
 minimap = {}
+minimap.radius = 22
+local circle = {}
+local circleRowIndices = {}
 
---      ijk
---     h6789
---     g501a
---     f432b
---      edc
-SCAN_ORDER = {
-	{0, 0}, -- 0
-	{4, 0}, -- 1
-	{4, -4}, -- 2
-	{0, -4}, -- 3
-	{-4, -4}, -- 4
-	{-4, 0}, -- 5
-	{-4, 4}, -- 6
-	{0, 4}, -- 7
-	{4, 4}, -- 8
-	{8, 4}, -- 9
-	{8, 0}, -- a
-	{8, -4}, -- b
-	{4, -8}, -- c
-	{0, -8}, -- d
-	{-4, -8}, -- e
-	{-8, -4}, -- f
-	{-8, 0}, -- g
-	{-8, 4}, -- h
-	{-4, 8}, -- i
-	{0, 8}, -- j
-	{4, 8}, -- k
-}
+local timeToNextScan = 0.2
+local shouldScan = false
 
 function minimap.init(...)
 	timeToNextStore = 0.5
-	scanIndex = 1
-	scanHalfIndex = math.floor(#SCAN_ORDER / 2)
+	timeToNextScan = 0.3
+	shouldScan = false
+
+	minimap.calculateCircle()
+	scanIntervalIndex = math.ceil(#circle / 8.0)
 
 	markers.load()
 end
 
+function minimap.calculateCircle(r)
+	r = r or minimap.radius
+	circle = {}
+	circleRowIndices = {}
+	local x = r
+	local y = 0
+	local r2 = r * r
+
+	addCircleXY(x, y)
+	while x > y do
+		if 2 * (RE(x, y, r2) + (2 * y + 1)) + (1 - 2 * x) > 0 then
+			x = x - 1
+			y = y + 1
+		else
+			-- x remains the same
+			y = y + 1
+		end
+		addCircleXY(x, y)
+	end
+
+	sb.logInfo("$$$$$$$$$$$$$$$ Circle area: " .. #circle .. " $$$$$$$$$$$$$$$")
+end
+
+function addCircleXY(x, y)
+	-- Draw a horizontal line to fill the circle at that y position
+	if not circleRowIndices[y] then
+		circleRowIndices[y] = x
+		for i = -x, x do
+			table.insert(circle, {i, y})
+			table.insert(circle, {i, -y})
+		end
+	elseif circleRowIndices[y] < x then -- This should never occur due to the way we're calculating the octant
+		-- Add x positions that were not caught by the line drawing
+		table.insert(circle, {x, y})
+		table.insert(circle, {-x, y})
+		table.insert(circle, {x, -y})
+		table.insert(circle, {-x, -y})
+	end
+	-- Draw a horizontal line to fill the circle at that mirrored y position
+	if not circleRowIndices[x] then
+		circleRowIndices[x] = y
+		for i = -y, y do
+			table.insert(circle, {i, x})
+			table.insert(circle, {i, -x})
+		end
+	elseif circleRowIndices[x] < y then
+		-- Add x positions that were not caught by the line drawing
+		table.insert(circle, {y, x})
+		table.insert(circle, {-y, x})
+		table.insert(circle, {y, -x})
+		table.insert(circle, {-y, -x})
+	end
+end
+
+function RE(x, y, r2)
+	return (x * x) + (y * y) - r2
+end
+
 function minimap.update(dt)
-	local playerPosition = getPlayerPos()
-	local worldWidth = world.size()[1]
-	local playerScanPos = getScanPosNearPos(playerPosition)
-	
-	local posToScan = playerScanPos
-	if scanIndex == 1 then
-		for i = 1, scanHalfIndex-1 do
-			posToScan = vec2.add(playerScanPos, SCAN_ORDER[i])
-			scan4x4Block(posToScan)
+	timeToNextScan = timeToNextScan - dt
+	if timeToNextScan <= 0 then
+		shouldScan = true
+		timeToNextScan = 0.33
+	end
+
+	if shouldScan then
+		if not co or coroutine.status(co) == 'dead' then
+			shouldScan = false
+			co = coroutine.create(scanOverTime)
+			coroutine.resume(co, getPlayerPos())
 		end
-		scanIndex = scanHalfIndex
-	else
-		for i = scanHalfIndex, #SCAN_ORDER do
-			posToScan = vec2.add(playerScanPos, SCAN_ORDER[i])
-			scan4x4Block(posToScan)
-		end
-		scanIndex = 1
+	end
+
+	if co and coroutine.status(co) ~= 'dead' then
+		coroutine.resume(co)
 	end
 
 	timeToNextStore = timeToNextStore - dt
 	if timeToNextStore <= 0 then
 		timeToNextStore = 0.5
 		minimap.tileStore:flushAll()
+	end
+end
+
+function scanOverTime(playerPosition)
+	local worldWidth = world.size()[1]
+	local playerScanPos = getScanPosNearPos(playerPosition)
+	
+	local posToScan = playerScanPos
+
+	local scanIndex = 1
+
+	while scanIndex > 0 do
+		local endScanIndex = scanIndex + scanIntervalIndex
+		if endScanIndex > #circle then
+			endScanIndex = #circle
+		end
+		for i = scanIndex, endScanIndex do
+			posToScan = vec2.add(playerScanPos, circle[i])
+			scanPos(posToScan)
+		end
+		scanIndex = endScanIndex + 1
+		if scanIndex > #circle then
+			scanIndex = 0
+		end
 	end
 end
 
@@ -100,14 +161,6 @@ end
 
 function getPlayerPos()
 	return world.entityPosition(player.id())
-end
-
-function scan4x4Block(position)
-	for i = 0, 3 do
-		for j = 0, 3 do
-			scanPos({position[1] + i, position[2] + j})
-		end
-	end
 end
 
 function scanPos(position)
