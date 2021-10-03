@@ -31,6 +31,14 @@ end
 
 
 function update(dt)
+	-- Close when teleporting out to avoid stack overflow, player entity will reopen when teleport is finished
+	startedTeleporting = status.statusProperty("navigation_tools_teleporting") or false
+
+	if startedTeleporting then
+		pane.dismiss()
+		return
+	end
+
 	canvas:clear()
 	timeToNextLoad = timeToNextLoad - dt
 	if timeToNextLoad <= 0 then
