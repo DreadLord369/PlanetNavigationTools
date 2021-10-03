@@ -83,7 +83,7 @@ function update(dt)
 	canvas:clear()
 
 	-- Close when teleporting out to avoid stack overflow, player entity will reopen when teleport is finished
-	startedTeleporting = player.getProperty("navigation_tools_teleporting") or false
+	startedTeleporting = status.statusProperty("navigation_tools_teleporting") or false
 
 	if startedTeleporting then
 		-- sb.logInfo("#*#*#*#* minimap: startedTeleporting *#*#*#*#")

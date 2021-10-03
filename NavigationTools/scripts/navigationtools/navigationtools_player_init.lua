@@ -58,8 +58,6 @@ function init(...)
 
 	lastDeathTime = nil
 
-	player.setProperty("navigation_tools_teleporting", false)
-
 	if player.getProperty("navigation_tools_minimap_state") == nil then
 		-- sb.logInfo("#*#*#*#* player: No existing minimap state *#*#*#*#")
 		player.setProperty("navigation_tools_minimap_state", "closed")
@@ -86,6 +84,11 @@ function openMiniMapDelayed(size, seconds)
 	while diff < seconds do
 		coroutine.yield("#*#*#*#* player: Waiting to open minimap (" .. size .. "): " .. tostring(diff) .. "/" .. tostring(seconds) .. " *#*#*#*#")
 		diff = os.difftime(os.time(), startTime)
+
+		-- Break early if we register that we are already moving after teleport
+		if not status.statusProperty("navigation_tools_teleporting") then
+			diff = seconds
+		end
 	end
 
 	if size == "small" then
@@ -132,6 +135,6 @@ end
 
 function teleportOut(...)
 	-- sb.logInfo("#*#*#*#* player_init: TELEPORTING OUT *#*#*#*#")
-	player.setProperty("navigation_tools_teleporting", true)
+	status.setStatusProperty("navigation_tools_teleporting", true)
 	_teleportOut(...)
 end
