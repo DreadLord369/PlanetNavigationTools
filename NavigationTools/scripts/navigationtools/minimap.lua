@@ -43,7 +43,7 @@ function minimap.calculateCircle(r)
 		addCircleXY(x, y)
 	end
 
-	sb.logInfo("$$$$$$$$$$$$$$$ Circle area: " .. #circle .. " $$$$$$$$$$$$$$$")
+	-- sb.logInfo("$$$$$$$$$$$$$$$ Circle area: " .. #circle .. " $$$$$$$$$$$$$$$")
 end
 
 function addCircleXY(x, y)
