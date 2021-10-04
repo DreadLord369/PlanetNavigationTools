@@ -43,14 +43,14 @@ function init(...)
 	end)
 	message.setHandler("OpenMiniMap", function(_, _)
 		if player.getProperty("navigation_tools_minimap_state") == "closed" then
-			openMiniMap()
+			openMiniMap("small")
 		end
 	end)
 	message.setHandler("ExpandMiniMap", function(_, _)
-		openMiniMapLarge()
+		openMiniMap("large")
 	end)
 	message.setHandler("ContractMiniMap", function(_, _)
-		openMiniMap()
+		openMiniMap("small")
 	end)
 
 	minimap.tileStore = TileStore:new()
@@ -91,20 +91,19 @@ function openMiniMapDelayed(size, seconds)
 		end
 	end
 
+	openMiniMap(size)
+end
+
+function openMiniMap(size)
+	size = size or "small"
+	local configData = {}
 	if size == "small" then
-		openMiniMap()
-	elseif size == "large" then
-		openMiniMapLarge()
+		configData = root.assetJson("/interface/navigationtools/minimapgui.config")
+	else
+		configData = root.assetJson("/interface/navigationtools/minimapguilarge.config")
 	end
-end
-
-function openMiniMap()
-	local configData = root.assetJson("/interface/navigationtools/minimapgui.config")
-	player.interact("ScriptPane", configData)
-end
-
-function openMiniMapLarge()
-	local configData = root.assetJson("/interface/navigationtools/minimapguilarge.config")
+	
+	status.setStatusProperty("navigation_tools_teleporting", false)
 	player.interact("ScriptPane", configData)
 end
 
