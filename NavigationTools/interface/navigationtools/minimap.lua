@@ -1,5 +1,6 @@
 require "/scripts/vec2.lua"
 require "/interface/navigationtools/markers.lua"
+require "/scripts/navigationtools/minimap.lua"
 require "/interface/navigationtools/buttons.lua"
 require "/interface/navigationtools/tilestore.lua"
 
@@ -11,9 +12,9 @@ require "/interface/navigationtools/tilestore.lua"
 -- 	[TileStore.tileTypes.LIQUID] = {37, 84, 162, 255},
 -- }
 
-local startedTeleporting = false
-local teleporting = false
+local playerPosition
 
+local teleporting = false
 local resizing = false
 
 function init()
@@ -33,7 +34,6 @@ function init()
 	TOOLTIP_COLOUR = config.getParameter("tooltipColor")
 	LOCK_ON_PLAYER = config.getParameter("lockOnPlayer")
 
-	startedTeleporting = false
 	teleporting = false
 
 	resizing = false
@@ -83,29 +83,44 @@ function update(dt)
 	canvas:clear()
 
 	-- Close when teleporting out to avoid stack overflow, player entity will reopen when teleport is finished
-	startedTeleporting = status.statusProperty("navigation_tools_teleporting") or false
+	teleporting = status.statusProperty("navigation_tools_teleporting") or false
 
-	if startedTeleporting then
-		-- sb.logInfo("#*#*#*#* minimap: startedTeleporting *#*#*#*#")
-		teleporting = true
+	if teleporting then
+		-- sb.logInfo("#*#*#*#* minimap: teleporting *#*#*#*#")
 		pane.dismiss()
 		return
 	end
 
+	local hp = status.resource("health")
+	if hp <= 0 then
+		-- sb.logInfo("#*#*#*#* minimap: player died - health = " .. hp .. " *#*#*#*#")
+		status.setStatusProperty("navigation_tools_teleporting", true)
+		if playerPosition then
+			-- sb.logInfo("#*#*#*#* minimap: player position is known *#*#*#*#")
+			-- world.sendEntityMessage(player.id(), "AddDeathMarker", playerPosition) -- doesn't seem to work
+			minimap.addDeathMarker(playerPosition)
+		else
+			-- sb.logInfo("#*#*#*#* minimap: player position is unknown *#*#*#*#")
+		end
+		return
+	end
+
 	-- sb.logInfo("#*#*#*#* minimap: Running *#*#*#*#")
+
+	local mousePos = canvas:mousePosition()
+	local worldSize = world.size()
+	local roundedPlayerPos = getRoundedPlayerPos()
+	if roundedPlayerPos == nil then
+		-- sb.logInfo("#*#*#*#* minimap: couldn't find player pos *#*#*#*#")
+		status.setStatusProperty("navigation_tools_teleporting", true)
+		return
+	end
 
 	timeToNextLoad = timeToNextLoad - dt
 	if timeToNextLoad <= 0 then
 		markers.load()
 		tileStore:reloadTiles()
 		timeToNextLoad = 0.5
-	end
-
-	local mousePos = canvas:mousePosition()
-	local worldSize = world.size()
-	local roundedPlayerPos = getRoundedPlayerPos()
-	if roundedPlayerPos == nil then
-		return
 	end
 
 	if LOCK_ON_PLAYER then
@@ -245,7 +260,9 @@ function getMarkerIdNearCursor(cursorPos)
 end
 
 function getPlayerPos()
-	return world.entityPosition(player.id())
+	newPlayerPosition = world.entityPosition(player.id())
+	playerPosition = newPlayerPosition or playerPosition -- hold onto this for when we die (this is called every update)
+	return newPlayerPosition
 end
 
 function getRoundedPlayerPos()
