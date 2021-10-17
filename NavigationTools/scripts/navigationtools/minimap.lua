@@ -152,7 +152,9 @@ function uninit()
 		_uninit()
 	end
 
-	minimap.tileStore:flushAll()
+	if minimap.tileStore then
+		minimap.tileStore:flushAll()
+	end
 end
 
 function getScanPosNearPos(position)
