@@ -10,6 +10,8 @@ local isAlive = true
 local _teleportOut = teleportOut
 local lastDeathTime = nil
 
+local playerPosition
+
 function init(...)
 	if _init then
 		_init(...)
@@ -48,7 +50,7 @@ function init(...)
 	end)
 	message.setHandler("ExpandMiniMap", function(_, _)
 		if player.getProperty("navigation_tools_minimap_state") == "small" then
-		openMiniMap("large")
+		  openMiniMap("large")
 		elseif player.getProperty("navigation_tools_minimap_state") == "large" then
 			openMiniMap("larger")
 		end
@@ -57,12 +59,14 @@ function init(...)
 		if player.getProperty("navigation_tools_minimap_state") == "larger" then
 			openMiniMap("large")
 		elseif player.getProperty("navigation_tools_minimap_state") == "large" then
-		openMiniMap("small")
+		  openMiniMap("small")
 		end
 	end)
 
 	minimap.tileStore = TileStore:new()
 	minimap.init(...)
+
+	updatePlayerPos()
 
 	lastDeathTime = nil
 
@@ -127,6 +131,22 @@ function update(dt)
 		_update(dt)
 	end
 
+	local hp = status.resource("health")
+	if hp <= 0 then
+		sb.logInfo("#*#*#*#* player_init: update(): player died - health = " .. hp .. " *#*#*#*#")
+		status.setStatusProperty("navigation_tools_teleporting", true)
+		if playerPosition then
+			sb.logInfo("#*#*#*#* player_init: update(): player position is known *#*#*#*#")
+			-- world.sendEntityMessage(player.id(), "AddDeathMarker", playerPosition) -- doesn't seem to work
+			minimap.addDeathMarker(playerPosition)
+		else
+			sb.logInfo("#*#*#*#* player_init: update(): player position is unknown *#*#*#*#")
+		end
+		return
+	end
+
+	updatePlayerPos()
+
 	promises:update()
 
 	minimap.update(dt)
@@ -140,8 +160,30 @@ function update(dt)
 	end
 end
 
+function updatePlayerPos()
+	local newPlayerPosition = world.entityPosition(player.id())
+	playerPosition = newPlayerPosition or playerPosition
+end
+
 function teleportOut(...)
 	-- sb.logInfo("#*#*#*#* player_init: TELEPORTING OUT *#*#*#*#")
 	status.setStatusProperty("navigation_tools_teleporting", true)
 	_teleportOut(...)
+end
+
+function uninit(...)
+	local hp = status.resource("health")
+	sb.logInfo("#*#*#*#* player_uninit: health = " .. hp .. " *#*#*#*#")
+	status.setStatusProperty("navigation_tools_teleporting", true)
+	if hp <= 0 then
+		sb.logInfo("#*#*#*#* player_uninit: player died - health = " .. hp .. " *#*#*#*#")
+		if playerPosition then
+			sb.logInfo("#*#*#*#* player_uninit: player position is known *#*#*#*#")
+			minimap.addDeathMarker(playerPosition)
+		else
+			sb.logInfo("#*#*#*#* player_uninit: player position is unknown - no death marker created *#*#*#*#")
+		end
+	end
+	
+	_uninit(...)
 end
