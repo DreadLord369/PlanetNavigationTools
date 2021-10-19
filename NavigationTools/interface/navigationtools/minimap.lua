@@ -72,11 +72,7 @@ function init()
 	end
 
 	-- Let player entity know which mode to re-open after teleporting
-	if BUTTON_POSITIONS.expandScreen then
-		player.setProperty("navigation_tools_minimap_state", "small")
-	elseif BUTTON_POSITIONS.contractScreen then
-		player.setProperty("navigation_tools_minimap_state", "large")
-	end
+	player.setProperty("navigation_tools_minimap_state", config.getParameter("mapSize"))
 end
 
 function update(dt)
@@ -330,9 +326,12 @@ function canvasClickEvent(position, button, isButtonDown)
 end
 
 function dismissed()
-	if not resizing and not teleporting and player.getProperty("navigation_tools_minimap_state") ~= "large" then
+	if not resizing and not teleporting then
+		local lastMapState = player.getProperty("navigation_tools_minimap_state")
+		if lastMapState == "large" or lastMapState == "larger" then
+			world.sendEntityMessage(player.id(), "ContractMiniMap")
+		else
 		player.setProperty("navigation_tools_minimap_state", "closed")
-	elseif not resizing and not teleporting and player.getProperty("navigation_tools_minimap_state") == "large" then
-		world.sendEntityMessage(player.id(), "ContractMiniMap")
+		end
 	end
 end

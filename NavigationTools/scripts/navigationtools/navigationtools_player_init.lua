@@ -47,10 +47,18 @@ function init(...)
 		end
 	end)
 	message.setHandler("ExpandMiniMap", function(_, _)
+		if player.getProperty("navigation_tools_minimap_state") == "small" then
 		openMiniMap("large")
+		elseif player.getProperty("navigation_tools_minimap_state") == "large" then
+			openMiniMap("larger")
+		end
 	end)
 	message.setHandler("ContractMiniMap", function(_, _)
+		if player.getProperty("navigation_tools_minimap_state") == "larger" then
+			openMiniMap("large")
+		elseif player.getProperty("navigation_tools_minimap_state") == "large" then
 		openMiniMap("small")
+		end
 	end)
 
 	minimap.tileStore = TileStore:new()
@@ -58,21 +66,19 @@ function init(...)
 
 	lastDeathTime = nil
 
-	if player.getProperty("navigation_tools_minimap_state") == nil then
+	local lastMapState = player.getProperty("navigation_tools_minimap_state")
+
+	if lastMapState == nil then
 		-- sb.logInfo("#*#*#*#* player: No existing minimap state *#*#*#*#")
 		player.setProperty("navigation_tools_minimap_state", "closed")
 		co = nil
-	elseif player.getProperty("navigation_tools_minimap_state") == "small" then
-		-- sb.logInfo("#*#*#*#* player: Existing minimap state was 'small' *#*#*#*#")
-		co = coroutine.create(openMiniMapDelayed)
-		coroutine.resume(co, "small", 5.0)
-	elseif player.getProperty("navigation_tools_minimap_state") == "large" then
-		-- sb.logInfo("#*#*#*#* player: Existing minimap state was 'large' *#*#*#*#")
-		co = coroutine.create(openMiniMapDelayed)
-		coroutine.resume(co, "small", 5.0)
-	elseif player.getProperty("navigation_tools_minimap_state") == "closed" then
+	elseif lastMapState == "closed" then
 		-- sb.logInfo("#*#*#*#* player: Existing minimap state was 'closed' *#*#*#*#")
 		co = nil
+	elseif lastMapState == "small" or lastMapState == "large" or lastMapState == "larger" then
+		-- sb.logInfo("#*#*#*#* player: Existing minimap state was '" .. lastMapState .. "' *#*#*#*#")
+		co = coroutine.create(openMiniMapDelayed)
+		coroutine.resume(co, "small", 5.0)
 	end
 
 	sb.logInfo("----- End Navigation Tools Player Init -----")
@@ -97,10 +103,12 @@ end
 function openMiniMap(size)
 	size = size or "small"
 	local configData = {}
-	if size == "small" then
-		configData = root.assetJson("/interface/navigationtools/minimapgui.config")
-	else
+	if size == "larger" then
+		configData = root.assetJson("/interface/navigationtools/minimapguilarger.config")
+	elseif size == "large" then
 		configData = root.assetJson("/interface/navigationtools/minimapguilarge.config")
+	else
+		configData = root.assetJson("/interface/navigationtools/minimapgui.config")
 	end
 	
 	status.setStatusProperty("navigation_tools_teleporting", false)

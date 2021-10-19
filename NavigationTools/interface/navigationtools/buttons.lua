@@ -10,6 +10,7 @@ buttons.buttons = {}
 function buttons.addStandardButtons(buttonPositions, onAddMarker, onRemoveMarker)
 	buttons.addButton(buttonPositions.blueMarker, "Blue marker", function() onAddMarker('blue', "Blue marker") end)
 	buttons.addButton(buttonPositions.greenMarker, "Green marker", function() onAddMarker('green', "Green marker") end)
+	buttons.addButton(buttonPositions.yellowMarker, "Yellow marker", function() onAddMarker('yellow', "Yellow marker") end)
 	buttons.addButton(buttonPositions.redMarker, "Red marker", function() onAddMarker('red', "Red marker") end)
 	buttons.addButton(buttonPositions.deleteMarker, "Delete marker", onRemoveMarker)
 end
