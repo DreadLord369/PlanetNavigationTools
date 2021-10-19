@@ -91,20 +91,6 @@ function update(dt)
 		return
 	end
 
-	local hp = status.resource("health")
-	if hp <= 0 then
-		-- sb.logInfo("#*#*#*#* minimap: player died - health = " .. hp .. " *#*#*#*#")
-		status.setStatusProperty("navigation_tools_teleporting", true)
-		if playerPosition then
-			-- sb.logInfo("#*#*#*#* minimap: player position is known *#*#*#*#")
-			-- world.sendEntityMessage(player.id(), "AddDeathMarker", playerPosition) -- doesn't seem to work
-			minimap.addDeathMarker(playerPosition)
-		else
-			-- sb.logInfo("#*#*#*#* minimap: player position is unknown *#*#*#*#")
-		end
-		return
-	end
-
 	-- sb.logInfo("#*#*#*#* minimap: Running *#*#*#*#")
 
 	local mousePos = canvas:mousePosition()
