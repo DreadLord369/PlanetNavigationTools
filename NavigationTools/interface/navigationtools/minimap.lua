@@ -34,6 +34,11 @@ function init()
 	TOOLTIP_COLOUR = config.getParameter("tooltipColor")
 	LOCK_ON_PLAYER = config.getParameter("lockOnPlayer")
 
+	mapSize = config.getParameter("mapSize")
+
+	-- Let player entity know which mode to re-open after teleporting
+	player.setProperty("navigation_tools_minimap_state", config.getParameter("mapSize"))
+
 	teleporting = false
 
 	resizing = false
@@ -47,7 +52,13 @@ function init()
 	markers.load()
 	buttons.addStandardButtons(BUTTON_POSITIONS, addMarkerAndOpenRenameDialog, function() deleteMode = not deleteMode end)
 	if BUTTON_POSITIONS.expandScreen then
-		buttons.addButton(BUTTON_POSITIONS.expandScreen, "Expand", function()
+		local expandText = "Expand"
+		if mapSize == "small" then
+			expandText = "Expand (May affect performance)"
+		elseif mapSize == "large" then
+			expandText = "Expand (will drastically affect performance, use at your own risk)"
+		end
+		buttons.addButton(BUTTON_POSITIONS.expandScreen, expandText, function()
 			resizing = true
 			world.sendEntityMessage(player.id(), "ExpandMiniMap")
 			pane.dismiss()
@@ -70,9 +81,6 @@ function init()
 			world.sendEntityMessage(player.id(), "ClearDeathMarkers")
 		end)
 	end
-
-	-- Let player entity know which mode to re-open after teleporting
-	player.setProperty("navigation_tools_minimap_state", config.getParameter("mapSize"))
 end
 
 function update(dt)
