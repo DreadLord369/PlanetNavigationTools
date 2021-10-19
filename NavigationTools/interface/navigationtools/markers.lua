@@ -9,6 +9,7 @@ markers.MARKER_IMAGES = {
 	blue = "/interface/navigationtools/marker_blue.png",
 	green = "/interface/navigationtools/marker_green.png",
 	red = "/interface/navigationtools/marker_red.png",
+	yellow = "/interface/navigationtools/marker_yellow.png",
 	white = "/interface/navigationtools/marker_white.png",
 	purple = "/interface/navigationtools/marker_purple.png",
 	death = "/interface/navigationtools/tombstone_marker.png"
