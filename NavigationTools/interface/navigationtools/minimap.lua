@@ -34,6 +34,11 @@ function init()
 	TOOLTIP_COLOUR = config.getParameter("tooltipColor")
 	LOCK_ON_PLAYER = config.getParameter("lockOnPlayer")
 
+	mapSize = config.getParameter("mapSize")
+
+	-- Let player entity know which mode to re-open after teleporting
+	player.setProperty("navigation_tools_minimap_state", config.getParameter("mapSize"))
+
 	teleporting = false
 
 	resizing = false
@@ -47,7 +52,13 @@ function init()
 	markers.load()
 	buttons.addStandardButtons(BUTTON_POSITIONS, addMarkerAndOpenRenameDialog, function() deleteMode = not deleteMode end)
 	if BUTTON_POSITIONS.expandScreen then
-		buttons.addButton(BUTTON_POSITIONS.expandScreen, "Expand", function()
+		local expandText = "Expand"
+		if mapSize == "small" then
+			expandText = "Expand (May affect performance)"
+		elseif mapSize == "large" then
+			expandText = "Expand (will drastically affect performance, use at your own risk)"
+		end
+		buttons.addButton(BUTTON_POSITIONS.expandScreen, expandText, function()
 			resizing = true
 			world.sendEntityMessage(player.id(), "ExpandMiniMap")
 			pane.dismiss()
@@ -69,13 +80,6 @@ function init()
 		buttons.addButton(BUTTON_POSITIONS.clearDeaths, "Clear world deaths", function()
 			world.sendEntityMessage(player.id(), "ClearDeathMarkers")
 		end)
-	end
-
-	-- Let player entity know which mode to re-open after teleporting
-	if BUTTON_POSITIONS.expandScreen then
-		player.setProperty("navigation_tools_minimap_state", "small")
-	elseif BUTTON_POSITIONS.contractScreen then
-		player.setProperty("navigation_tools_minimap_state", "large")
 	end
 end
 
@@ -316,9 +320,12 @@ function canvasClickEvent(position, button, isButtonDown)
 end
 
 function dismissed()
-	if not resizing and not teleporting and player.getProperty("navigation_tools_minimap_state") ~= "large" then
+	if not resizing and not teleporting then
+		local lastMapState = player.getProperty("navigation_tools_minimap_state")
+		if lastMapState == "large" or lastMapState == "larger" then
+			world.sendEntityMessage(player.id(), "ContractMiniMap")
+		else
 		player.setProperty("navigation_tools_minimap_state", "closed")
-	elseif not resizing and not teleporting and player.getProperty("navigation_tools_minimap_state") == "large" then
-		world.sendEntityMessage(player.id(), "ContractMiniMap")
+		end
 	end
 end
