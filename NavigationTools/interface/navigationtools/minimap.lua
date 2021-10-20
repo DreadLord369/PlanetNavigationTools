@@ -54,9 +54,10 @@ function init()
 	if BUTTON_POSITIONS.expandScreen then
 		local expandText = "Expand"
 		if mapSize == "small" then
-			expandText = "Expand (May affect performance)"
+			expandText = "Expand (Performance drop)"
+			expandText = "Expand (drops FPS)"
 		elseif mapSize == "large" then
-			expandText = "Expand (will drastically affect performance, use at your own risk)"
+			expandText = "Expand (Drastic FPS drop, use at your own risk)"
 		end
 		buttons.addButton(BUTTON_POSITIONS.expandScreen, expandText, function()
 			resizing = true
@@ -270,7 +271,7 @@ function showTooltipDelayed(text)
 end
 
 function showTooltip(text)
-	canvas:drawRect({21, 1, 120, 12}, {0, 0, 0, 128})
+	canvas:drawRect({MAP_REGION[1], MAP_REGION[2], DISTANCE_POSITION[1], DISTANCE_POSITION[2] + 2}, {0, 0, 0, 200})
 	canvas:drawText(text, {position=TOOLTIP_POSITION}, 8, TOOLTIP_COLOUR)
 end
 
