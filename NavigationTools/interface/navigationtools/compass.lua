@@ -6,10 +6,11 @@ require "/interface/navigationtools/buttons.lua"
 RADIUS = 50
 CENTRE = {52.5, 52.5}
 BUTTON_POSITIONS = {
-	blueMarker = {15, 40},
-	greenMarker = {35, 40},
-	redMarker = {55, 40},
-	deleteMarker = {75, 40},
+	blueMarker = {9, 40},
+	greenMarker = {27, 40},
+	yellowMarker = {45, 40},
+	redMarker = {63, 40},
+	deleteMarker = {81, 40},
 }
 
 
@@ -153,6 +154,6 @@ end
 
 
 function dismissed()
-	--sb.logInfo("Dismissed")
+	--sb.logInfo("Compass Dismissed")
 	world.sendEntityMessage(config.getParameter("ownerId"), "SurveyCompassClosed")
 end
