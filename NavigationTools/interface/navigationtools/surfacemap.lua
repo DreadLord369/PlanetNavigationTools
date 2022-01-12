@@ -14,10 +14,11 @@ COLOUR_UNKNOWN = {33,68,33,255}
 COLOUR_LIQUID = {0,72,255,255}
 
 BUTTON_POSITIONS = {
-	blueMarker = {10, 0},
-	greenMarker = {30, 0},
-	redMarker = {50, 0},
-	deleteMarker = {70, 0},
+	blueMarker = {4, 0},
+	greenMarker = {22, 0},
+	yellowMarker = {40, 0},
+	redMarker = {58, 0},
+	deleteMarker = {76, 0},
 }
 
 

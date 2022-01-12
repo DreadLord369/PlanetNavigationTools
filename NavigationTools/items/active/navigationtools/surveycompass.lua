@@ -16,6 +16,7 @@ function activate(fireMode, shiftHeld)
 end
 
 function openCompass()
+	status.setStatusProperty("navigation_tools_teleporting", false)
 	local configData = root.assetJson("/interface/navigationtools/compassgui.config")
 	configData.ownerId = activeItem.ownerEntityId()
 	activeItem.interact("ScriptPane", configData, activeItem.ownerEntityId())
