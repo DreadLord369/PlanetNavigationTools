@@ -40,6 +40,7 @@ function activate(fireMode, shiftHeld)
 end
 
 function openSurfaceMap()
+	status.setStatusProperty("navigation_tools_teleporting", false)
 	local configData = root.assetJson("/interface/navigationtools/surfacemapgui.config")
 	configData.ownerId = activeItem.ownerEntityId()
 	activeItem.interact("ScriptPane", configData, activeItem.ownerEntityId())
